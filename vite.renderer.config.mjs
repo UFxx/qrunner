@@ -14,8 +14,8 @@ export default defineConfig({
 		preprocessorOptions: {
 			scss: {
 				additionalData: `
-					@use "~/src/assets/scss/_base.scss" as *;
-					@use "~/src/assets/scss/_variables.scss" as *;
+					@use "~/src/renderer/assets/scss/_base.scss" as *;
+					@use "~/src/renderer/assets/scss/_variables.scss" as *;
 				`,
 				api: 'modern-compiler'
 			}
