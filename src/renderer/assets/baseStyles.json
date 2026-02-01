@@ -1,0 +1,13 @@
+{
+	"inputPadding"                : "30px 0 30px 90px",
+	"inputOpacity"                : "0.5",
+	"inputBgColor"               : "#000000",
+	"inputFontSize"              : "24px",
+	"inputTextColor"             : "#16FF16",
+	"inputBorderSize"            : "2px",
+	"inputBorderStyle"           : "solid",
+	"inputBorderColor"           : "#16FF16",
+	"inputBorderRadius"          : "15px",
+	"inputOpacityFocus"         : "1",
+	"inputPlaceholderTextColor" : "#16FF16"
+}

@@ -15,7 +15,8 @@ export default defineConfig({
 			scss: {
 				additionalData: `
 					@use "~/src/renderer/assets/scss/_base.scss" as *;
-					@use "~/src/renderer/assets/scss/_variables.scss" as *;
+					@use "~/src/renderer/assets/scss/_fonts.scss" as *;
+					@use "~/src/renderer/assets/scss/_mixins.scss" as *;
 				`,
 				api: 'modern-compiler'
 			}
