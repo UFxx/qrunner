@@ -17,6 +17,9 @@
 	)
 
 	const model            = defineModel();
+	const emit = defineEmits(['update:modelValue']);
+
+	const updateValue = (value) => emit('update:modelValue', value);
 
 	const isDropdownOpened = ref(false);
 </script>
@@ -36,7 +39,7 @@
 				v-for="variant in variants"
 				:key="variant.name"
 				class="input-settings-item__dropdown-item"
-				@click="(e) => model = e.target.textContent"
+				@click="updateValue(variant.name)"
 			>
 				{{ variant.name }}
 			</div>
@@ -47,11 +50,11 @@
 <style lang='scss'>
 	.input-settings-item__select
 	{
-		cursor: pointer;
-		padding: 10px;
-		border: 1px solid gray;
 		width: 100%;
 		display: flex;
+		padding: 10px;
+		cursor: pointer;
+		border: 1px solid gray;
 		justify-content: space-between;
 
 		span { line-height: 16px; }
@@ -59,8 +62,8 @@
 
 	.input-settings-item__dropdown-item
 	{
-		cursor: pointer;
 		z-index: 2;
+		cursor: pointer;
 		font-size: 14px;
 		padding: 5px 0 5px 10px;
 

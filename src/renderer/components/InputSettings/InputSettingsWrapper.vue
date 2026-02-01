@@ -50,6 +50,11 @@
 		]
 	);
 
+	const changeBorderStyleActiveVariant = (value) =>
+	{
+		borderStyleSelectValues.forEach(el => el.isActive = (el.name === value));
+	}
+
 	const borderStyleVariants = computed(() => borderStyleSelectValues.filter(variant => !variant.isActive));
 </script>
 
@@ -84,6 +89,7 @@
 			v-model="inputSettings.inputBorderStyle"
 			type="select"
 			:variants="borderStyleVariants"
+			@update:model-value="changeBorderStyleActiveVariant"
 		/>
 
 		<InputSettingsItem
