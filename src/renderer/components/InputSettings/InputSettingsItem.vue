@@ -2,6 +2,7 @@
 	import Number from './Fields/Number.vue';
 	import Color from './Fields/Color.vue';
 	import Select from './Fields/Select.vue';
+	import Size from './Fields/Size.vue';
 
 	defineProps(
 		{
@@ -46,6 +47,12 @@
 		:label
 		v-model="model"
 		:variants
+	/>
+
+	<Size
+		v-if="type === 'size'"
+		:label
+		v-model="model"
 	/>
 </template>
 

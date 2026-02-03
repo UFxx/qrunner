@@ -11,21 +11,23 @@
 		}
 	)
 
+	const emit = defineEmits(['toggleSettings']);
+
 	const input = ref();
 
 	const inputStyles = computed(() =>
 		{
 			const
 			{
+				inputBgColor,
+				inputPadding,
+				inputOpacity,
+				inputFontSize,
 				inputTextColor,
 				inputBorderSize,
 				inputBorderStyle,
 				inputBorderColor,
-				inputPadding,
-				inputOpacity,
-				inputFontSize,
 				inputBorderRadius,
-				inputBgColor,
 				inputOpacityFocus,
 				inputPlaceholderTextColor
 			} = props.inputSettings;
@@ -44,6 +46,8 @@
 		}
 	)
 
+	const openSettings = () => emit('toggleSettings', true);
+
 	onMounted(() => input.value.focus());
 </script>
 
@@ -53,6 +57,7 @@
 		ref="input"
 		type="text"
 		:placeholder="inputSettings.placeholder"
+		@dblclick="openSettings"
 	>
 </template>
 
