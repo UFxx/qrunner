@@ -51,10 +51,10 @@
 	.input-settings-item__select
 	{
 		width: 100%;
-		border: 1px solid gray;
-		cursor: pointer;
-		display: flex;
 		padding: 10px;
+		display: flex;
+		cursor: pointer;
+		border: 1px solid gray;
 		justify-content: space-between;
 
 		span { line-height: 16px; }
@@ -62,11 +62,11 @@
 
 	.input-settings-item__dropdown-item
 	{
-		cursor: pointer;
 		z-index: 2;
-		padding: 5px 0 5px 10px;
+		cursor: pointer;
 		font-size: 14px;
 		user-select: none;
+		padding: 5px 0 5px 10px;
 
 		&:hover { background-color: rgba(gray, 0.1); }
 	}

@@ -46,8 +46,6 @@
 		}
 	)
 
-	const openSettings = () => emit('toggleSettings', true);
-
 	onMounted(() => input.value.focus());
 </script>
 
@@ -57,7 +55,7 @@
 		ref="input"
 		type="text"
 		:placeholder="inputSettings.placeholder"
-		@dblclick="openSettings"
+		@dblclick="emit('toggleSettings', true)"
 	>
 </template>
 
