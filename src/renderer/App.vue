@@ -50,14 +50,14 @@
 
 		&::after
 		{
-			top              : 50%;
-			left             : 30px;
-			width            : 30px;
-			height           : 30px;
-			content          : '';
-			position         : absolute;
-			transform        : translateY(-50%);
-			background-image : url('./assets/images/magnifier.svg');
+			top: 50%;
+			left: 30px;
+			width: 30px;
+			height: 30px;
+			content: '';
+			position: absolute;
+			transform: translateY(-50%);
+			background: url('./assets/images/magnifier.svg');
 		}
 	}
 </style>
