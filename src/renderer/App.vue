@@ -4,7 +4,7 @@
 	import baseStyles from './assets/baseStyles.json';
 	import InputSettings from './components/InputSettings/InputSettingsWrapper.vue';
 
-	let inputSettings    = reactive({})
+	let inputSettings      = reactive({})
 	const isSettingsOpened = ref(false);
 
 	const setInputSettings = () =>
@@ -22,10 +22,33 @@
 		}
 	}
 
-	const toggleSettings = (value) => isSettingsOpened.value = value;
+	const toggleSettings   = (value) => isSettingsOpened.value = value;
+	const startIndex       = ()       => window.electron.ipcRenderer.send('index');
+	const setupIpcListener = () => window.electron.ipcRenderer.on('index-response', (data) =>
+	{
+		localStorage.setItem('lastIndexedTime', data.newTimestamp)
+	});
+
+	const checkLastIndexedTime = () =>
+	{
+		const currentTimestamp = Date.now();
+		const lastIndexedTime  = localStorage.getItem('lastIndexedTime');
+
+		if (!lastIndexedTime)
+			startIndex();
+
+		if (lastIndexedTime && currentTimestamp < lastIndexedTime)
+			startIndex();
+	}
 
 	watch(inputSettings, () => localStorage.setItem('inputSettings', JSON.stringify(inputSettings)));
-	onMounted(() => setInputSettings());
+
+	onMounted(() =>
+	{
+		setInputSettings();
+		setupIpcListener();
+		checkLastIndexedTime();
+	});
 </script>
 
 <template>

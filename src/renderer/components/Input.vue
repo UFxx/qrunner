@@ -46,15 +46,15 @@
 		}
 	)
 
-	const handleInput = (event) => {
-		const value = event.target.value
-		window.electron.ipcRenderer.send('input-value', value)
+	const handleInput = (event) =>
+	{
+		const value = event.target.value;
+		window.electron.ipcRenderer.send('input', value);
 	}
 
-	const setupIpcListener = () => {
-		window.electron.ipcRenderer.on('input-value-response', (data) => {
-			console.log('📨 Получено от бекенда:', data)
-		})
+	const setupIpcListener = () =>
+	{
+		window.electron.ipcRenderer.on('input-response', (data) => {console.log(data)});
 	}
 
 	onMounted(() =>
