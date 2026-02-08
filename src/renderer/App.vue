@@ -1,17 +1,17 @@
 <script setup>
 	import { onMounted, reactive, watch, ref } from 'vue';
 	import Input from './components/Input.vue';
-	import baseSstyles from './assets/baseStyles.json';
+	import baseStyles from './assets/baseStyles.json';
 	import InputSettings from './components/InputSettings/InputSettingsWrapper.vue';
 
-	const inputSettings    = reactive({})
+	let inputSettings    = reactive({})
 	const isSettingsOpened = ref(false);
 
 	const setInputSettings = () =>
 	{
 		if (!localStorage.getItem('inputSettings'))
 		{
-			Object.entries(baseSstyles).forEach(style => inputSettings[style[0]] = style[1]);
+			Object.entries(baseStyles).forEach(style => inputSettings[style[0]] = style[1]);
 			inputSettings.placeholder = 'Введите название приложения...';
 			localStorage.setItem('inputSettings', JSON.stringify(inputSettings));
 		}

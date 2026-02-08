@@ -13,7 +13,7 @@
 
 	const emit = defineEmits(['toggleSettings']);
 
-	const input = ref();
+	const input         = ref();
 
 	const inputStyles = computed(() =>
 		{
@@ -46,7 +46,22 @@
 		}
 	)
 
-	onMounted(() => input.value.focus());
+	const handleInput = (event) => {
+		const value = event.target.value
+		window.electron.ipcRenderer.send('input-value', value)
+	}
+
+	const setupIpcListener = () => {
+		window.electron.ipcRenderer.on('input-value-response', (data) => {
+			console.log('📨 Получено от бекенда:', data)
+		})
+	}
+
+	onMounted(() =>
+	{
+		input.value.focus();
+		setupIpcListener();
+	})
 </script>
 
 <template>
@@ -55,6 +70,7 @@
 		ref="input"
 		type="text"
 		:placeholder="inputSettings.placeholder"
+		@input="handleInput"
 		@dblclick="emit('toggleSettings', true)"
 	>
 </template>
