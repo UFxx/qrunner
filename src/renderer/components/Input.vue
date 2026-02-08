@@ -1,5 +1,6 @@
 <script setup>
 	import { ref, onMounted, computed } from 'vue';
+	import Results from './ResultsFields/Results.vue';
 
 	const props = defineProps(
 		{
@@ -9,11 +10,12 @@
 				required: true
 			}
 		}
-	)
+	);
 
 	const emit = defineEmits(['toggleSettings']);
 
 	const input         = ref();
+	const searchResults = ref([]);
 
 	const inputStyles = computed(() =>
 		{
@@ -54,7 +56,11 @@
 
 	const setupIpcListener = () =>
 	{
-		window.electron.ipcRenderer.on('input-response', (data) => {console.log(data)});
+		window.electron.ipcRenderer.on('input-response', (data) =>
+			{
+				searchResults.value = data.results;
+			}
+		);
 	}
 
 	onMounted(() =>
@@ -73,6 +79,11 @@
 		@input="handleInput"
 		@dblclick="emit('toggleSettings', true)"
 	>
+
+	<Results
+		v-if="searchResults.length"
+		:items="searchResults"
+	/>
 </template>
 
 <style lang='scss'>
