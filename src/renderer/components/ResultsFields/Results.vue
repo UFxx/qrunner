@@ -1,7 +1,8 @@
 <script setup>
+	import { onMounted, ref } from 'vue';
 	import App from './App.vue';
 
-	defineProps(
+	const props = defineProps(
 		{
 			items:
 			{
@@ -16,6 +17,46 @@
 			}
 		}
 	);
+
+	const currentSelectedItemIndex = ref(0);
+
+	const emit = defineEmits(['selectItem']);
+
+	const selectItem = (idx, prevIdx) => emit('selectItem', idx, prevIdx);
+
+	const selectNextItem = () =>
+	{
+		currentSelectedItemIndex.value += 1;
+
+		if (currentSelectedItemIndex !== 0)
+			selectItem(currentSelectedItemIndex.value, currentSelectedItemIndex.value - 1);
+		else
+			selectItem(currentSelectedItemIndex.value);
+	}
+
+	const selectPrevItem = () =>
+	{
+		currentSelectedItemIndex.value -= 1;
+		selectItem(currentSelectedItemIndex.value, currentSelectedItemIndex.value + 1);
+	}
+
+	const launchApp = () =>
+	{
+		window.electron.ipcRenderer.send('launchApp', props.items[currentSelectedItemIndex.value].path);
+	}
+
+	onMounted(() =>
+	{
+		window.addEventListener('keydown', (e) =>
+			{
+				if (e.key === "ArrowDown") selectNextItem();
+				if (e.key === "ArrowUp")   selectPrevItem();
+				if (e.key === 'Enter')     launchApp();
+			}
+		)
+
+		selectItem(currentSelectedItemIndex.value);
+	});
 </script>
 
 <template>

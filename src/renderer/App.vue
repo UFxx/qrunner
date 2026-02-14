@@ -24,6 +24,7 @@
 
 	const toggleSettings   = (value) => isSettingsOpened.value = value;
 	const startIndex       = ()       => window.electron.ipcRenderer.send('index');
+
 	const setupIpcListener = () => window.electron.ipcRenderer.on('index-response', (data) =>
 	{
 		localStorage.setItem('lastIndexedTime', data.newTimestamp)

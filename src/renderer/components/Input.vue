@@ -58,9 +58,23 @@
 	{
 		window.electron.ipcRenderer.on('input-response', (data) =>
 			{
-				searchResults.value = data.results;
+				searchResults.value = data.results.map((item) =>
+					(
+						{
+							...item,
+							isSelected: false
+						}
+					)
+				);
 			}
 		);
+	}
+
+	const selectItem = (idx, prevIdx = null) =>
+	{
+		searchResults.value[idx].isSelected     = true;
+		if (prevIdx !== null)
+			searchResults.value[prevIdx].isSelected = false;
 	}
 
 	onMounted(() =>
@@ -83,6 +97,7 @@
 	<Results
 		v-if="searchResults.length"
 		:items="searchResults"
+		@selectItem="selectItem"
 	/>
 </template>
 

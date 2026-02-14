@@ -11,8 +11,11 @@
 </script>
 
 <template>
-	<div class="results__item results__item-app">
-		<p>{{ item.name }}</p>
+	<div
+		class="results__item results__item-app"
+		:class="{ 'active': item.isSelected }"
+	>
+		<p>{{`${item.name}.${item.extension}`}}</p>/
 	</div>
 </template>
 
@@ -20,5 +23,11 @@
 	.results__item
 	{
 		color: white;
+
+		&.active
+		{
+			// color: var(--inputTextColor);
+			color: green;
+		}
 	}
 </style>
