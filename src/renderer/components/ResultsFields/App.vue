@@ -1,5 +1,7 @@
 <script setup>
-	defineProps(
+	import { computed, inject } from 'vue';
+
+	const props = defineProps(
 		{
 			item:
 			{
@@ -8,26 +10,49 @@
 			}
 		}
 	);
+
+	const inputStyles = inject('inputStyles');
+
+	const itemStyles = computed(() =>
+		(
+			{
+				color: inputStyles.value.color,
+				border: inputStyles.value.border,
+				opacity: inputStyles.value.opacity,
+				borderRadius: inputStyles.value.borderRadius
+			}
+		)
+	);
 </script>
 
 <template>
 	<div
 		class="results__item results__item-app"
 		:class="{ 'active': item.isSelected }"
+		:style="itemStyles"
 	>
-		<p>{{`${item.name}.${item.extension}`}}</p>/
+		<p>{{`${item.name}.${item.extension}`}}</p>
 	</div>
 </template>
 
 <style lang='scss'>
 	.results__item
 	{
+		width: 100%;
+		opacity: 0.5;
+		padding: 20px;
 		color: white;
+		font-size: 18px;
+		overflow: hidden;
 
-		&.active
+		@include tr(0.3, background-color, opacity);
+
+		&.active,
+		&:hover
 		{
-			// color: var(--inputTextColor);
-			color: green;
+			opacity: 1 !important;
+			cursor: pointer;
+			background-color: #AAAAAA10;
 		}
 	}
 </style>

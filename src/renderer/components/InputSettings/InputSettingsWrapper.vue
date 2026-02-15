@@ -51,9 +51,13 @@
 		]
 	);
 
-	const changeBorderStyleActiveVariant = (value) => borderStyleSelectValues.forEach(el => el.isActive = (el.name === value));
+	const changeBorderStyleActiveVariant = (value) =>
+	{
+		borderStyleSelectValues.forEach(el => el.isActive = (el.name === value ? false : true))
+		borderStyleSelectValues.forEach(el => el.isActive = (el.name === value))
+	};
 
-	const borderStyleVariants   = computed(() => borderStyleSelectValues.filter(variant => !variant.isActive));
+	const borderStyleVariants = computed(() => borderStyleSelectValues.filter(variant => !variant.isActive));
 </script>
 
 <template>

@@ -1,5 +1,5 @@
 <script setup>
-	import { onMounted, ref } from 'vue';
+	import { onMounted, onUnmounted, ref } from 'vue';
 	import App from './App.vue';
 
 	const props = defineProps(
@@ -26,6 +26,8 @@
 
 	const selectNextItem = () =>
 	{
+		if (currentSelectedItemIndex.value >= props.items.length - 1) return;
+
 		currentSelectedItemIndex.value += 1;
 
 		if (currentSelectedItemIndex !== 0)
@@ -33,9 +35,10 @@
 		else
 			selectItem(currentSelectedItemIndex.value);
 	}
-
 	const selectPrevItem = () =>
 	{
+		if (currentSelectedItemIndex.value <= 0) return;
+
 		currentSelectedItemIndex.value -= 1;
 		selectItem(currentSelectedItemIndex.value, currentSelectedItemIndex.value + 1);
 	}
@@ -45,18 +48,20 @@
 		window.electron.ipcRenderer.send('launchApp', props.items[currentSelectedItemIndex.value].path);
 	}
 
+	const keydownHandlers = (e) =>
+	{
+		if (e.key === "ArrowDown") selectNextItem();
+		if (e.key === "ArrowUp")   selectPrevItem();
+		if (e.key === 'Enter')     launchApp();
+	}
+
 	onMounted(() =>
 	{
-		window.addEventListener('keydown', (e) =>
-			{
-				if (e.key === "ArrowDown") selectNextItem();
-				if (e.key === "ArrowUp")   selectPrevItem();
-				if (e.key === 'Enter')     launchApp();
-			}
-		)
-
+		window.addEventListener('keydown', keydownHandlers)
 		selectItem(currentSelectedItemIndex.value);
 	});
+
+	onUnmounted(() => window.removeEventListener('keydown', keydownHandlers));
 </script>
 
 <template>
@@ -74,6 +79,8 @@
 <style lang='scss'>
 	.results
 	{
+		width: 100%;
+		padding: 0 10px;
 		display: flex;
 		row-gap: 10px;
 		position: absolute;

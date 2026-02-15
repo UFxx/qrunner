@@ -5,7 +5,12 @@ function launcher()
 {
 	ipcMain.on('launchApp', (_, value) =>
 		{
-			execFile(value);
+			let filePath = '';
+			filePath = value;
+
+			console.log(filePath);
+
+			execFile(filePath);
 		}
 	)
 }

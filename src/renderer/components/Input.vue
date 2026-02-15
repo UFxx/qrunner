@@ -1,5 +1,5 @@
 <script setup>
-	import { ref, onMounted, computed } from 'vue';
+	import { ref, onMounted, computed, provide } from 'vue';
 	import Results from './ResultsFields/Results.vue';
 
 	const props = defineProps(
@@ -46,7 +46,9 @@
 				"--input-placeholder-text-color" : inputPlaceholderTextColor
 			}
 		}
-	)
+	);
+
+	provide('inputStyles', inputStyles);
 
 	const handleInput = (event) =>
 	{
@@ -97,6 +99,7 @@
 	<Results
 		v-if="searchResults.length"
 		:items="searchResults"
+		:styles="inputStyles"
 		@selectItem="selectItem"
 	/>
 </template>
