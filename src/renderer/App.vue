@@ -38,7 +38,7 @@
 		if (!lastIndexedTime)
 			startIndex();
 
-		if (lastIndexedTime && currentTimestamp < lastIndexedTime)
+		if (lastIndexedTime && (currentTimestamp - lastIndexedTime) > 86400000)
 			startIndex();
 	}
 
@@ -46,8 +46,8 @@
 
 	onMounted(() =>
 	{
-		setInputSettings();
 		setupIpcListener();
+		setInputSettings();
 		checkLastIndexedTime();
 	});
 </script>

@@ -80,10 +80,13 @@
 	.results
 	{
 		width: 100%;
-		padding: 0 10px;
 		display: flex;
 		row-gap: 10px;
+		padding: 0 10px;
+		overflow-y: scroll;
+		max-height: 300px;
 		position: absolute;
+		scrollbar-width: thin;
 		flex-direction: column;
 		top: calc(100% + 20px);
 	}

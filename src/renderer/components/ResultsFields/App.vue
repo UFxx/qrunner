@@ -19,7 +19,8 @@
 				color: inputStyles.value.color,
 				border: inputStyles.value.border,
 				opacity: inputStyles.value.opacity,
-				borderRadius: inputStyles.value.borderRadius
+				borderRadius: inputStyles.value.borderRadius,
+				backgroundColor: inputStyles.value.backgroundColor,
 			}
 		)
 	);
@@ -43,7 +44,7 @@
 		padding: 20px;
 		color: white;
 		font-size: 18px;
-		overflow: hidden;
+		flex-shrink: 0;
 
 		@include tr(0.3, background-color, opacity);
 
@@ -52,7 +53,6 @@
 		{
 			opacity: 1 !important;
 			cursor: pointer;
-			background-color: #AAAAAA10;
 		}
 	}
 </style>
