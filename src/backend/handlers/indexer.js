@@ -4,7 +4,6 @@ const fs          = require('fs');
 const fsp         = fs.promises;
 const path        = require('path');
 
-// Get all drives
 function getAllDrives() {
 	const drives = [];
 

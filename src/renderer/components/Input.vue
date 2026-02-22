@@ -70,6 +70,13 @@
 				);
 			}
 		);
+
+		window.electron.ipcRenderer.on('close-response', (data) =>
+			{
+				if (data.success)
+					input.value.value = '';
+			}
+		)
 	}
 
 	const selectItem = (idx, prevIdx = null) =>

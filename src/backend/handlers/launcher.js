@@ -1,4 +1,4 @@
-const { ipcMain } = require('electron');
+const { ipcMain, BrowserWindow } = require('electron');
 const { execFile } = require('child_process');
 
 function launcher()
@@ -8,9 +8,8 @@ function launcher()
 			let filePath = '';
 			filePath = value;
 
-			console.log(filePath);
-
 			execFile(filePath);
+			BrowserWindow.getFocusedWindow().hide();
 		}
 	)
 }

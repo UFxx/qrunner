@@ -42,6 +42,12 @@
 			startIndex();
 	}
 
+	const closeWindow = (e) =>
+	{
+		if (e.key === 'Escape')
+			window.electron.ipcRenderer.send('close');
+	}
+
 	watch(inputSettings, () => localStorage.setItem('inputSettings', JSON.stringify(inputSettings)));
 
 	onMounted(() =>
@@ -49,6 +55,7 @@
 		setupIpcListener();
 		setInputSettings();
 		checkLastIndexedTime();
+		window.addEventListener('keydown', closeWindow);
 	});
 </script>
 

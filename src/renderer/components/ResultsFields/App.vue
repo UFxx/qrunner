@@ -43,16 +43,16 @@
 		opacity: 0.5;
 		padding: 20px;
 		color: white;
-		font-size: 18px;
 		flex-shrink: 0;
+		font-size: 18px;
 
 		@include tr(0.3, background-color, opacity);
 
 		&.active,
 		&:hover
 		{
-			opacity: 1 !important;
 			cursor: pointer;
+			opacity: 1 !important;
 		}
 	}
 </style>
