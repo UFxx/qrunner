@@ -22,9 +22,10 @@ function searchHandler()
 			const searchQuery = `%${value}%`;
 
 			const results = db.prepare(`
-				SELECT id, name, path, extension
+				SELECT id, name, path, extension, active
 				FROM apps
 				WHERE name LIKE ?
+				AND active = 1
 				ORDER BY
 				CASE
 					WHEN name LIKE ? THEN 1

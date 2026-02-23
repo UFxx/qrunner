@@ -14,7 +14,8 @@ db.exec(`
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		name TEXT NOT NULL,
 		path TEXT NOT NULL UNIQUE,
-		extension TEXT
+		extension TEXT,
+		active BIT DEFAULT 1
 	)
 `);
 

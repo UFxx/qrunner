@@ -1,10 +1,26 @@
 const { app, BrowserWindow, Tray, Menu, globalShortcut, screen } = require('electron');
-const path = require('path');
+const path                                                       = require('path');
+const init                                                       = require('./backend/app.js');
 
-const init = require('./backend/app.js');
+let win          = null;
+let tray         = null;
+const gotTheLock = app.requestSingleInstanceLock();
 
-let win  = null;
-let tray = null;
+if (!gotTheLock)
+	app.quit();
+else
+{
+	app.on('second-instance', () =>
+		{
+			if (win)
+			{
+				if (win.isMinimized()) win.restore();
+				win.show();
+				win.focus();
+			}
+		}
+	);
+}
 
 function createWindow()
 {
@@ -45,7 +61,7 @@ function createWindow()
 function createTray() {
 	const iconPath = path.join(__dirname, 'icons', 'tray-icon.png');
 
-	if (tray !== null) return;
+	if (tray && !tray.isDestroyed()) return;
 
 	tray = new Tray(iconPath);
 
@@ -80,6 +96,7 @@ function createTray() {
 function registerGlobalShortcut()
 {
 	const shortcut = 'Shift+Ctrl+S';
+	globalShortcut.unregisterAll();
 
 	const registered = globalShortcut.register(shortcut, () =>
 		{
@@ -114,19 +131,14 @@ app.on('window-all-closed', (e) =>
 	if (win) win.hide();
 });
 
-app.on('will-quit', () => globalShortcut.unregisterAll());
+app.on('will-quit', () =>
+	{
+		globalShortcut.unregisterAll();
 
-const gotTheLock = app.requestSingleInstanceLock();
-if (!gotTheLock) app.quit();
-else
-{
-	app.on('second-instance', () =>
+		if (tray && !tray.isDestroyed())
 		{
-			if (win)
-			{
-				win.show();
-				win.focus();
-			}
+			tray.destroy();
+			tray = null;
 		}
-	);
-}
+	}
+);
