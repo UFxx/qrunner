@@ -141,6 +141,13 @@
 			v-model="inputSettings.inputPlaceholderTextColor"
 			type="color"
 		/>
+
+
+		<InputSettingsItem
+			label="Размер иконки"
+			v-model="inputSettings.inputIconSize"
+			type="size"
+		/>
 	</div>
 </template>
 

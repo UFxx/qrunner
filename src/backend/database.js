@@ -15,9 +15,20 @@ db.exec(`
 		name TEXT NOT NULL,
 		path TEXT NOT NULL UNIQUE,
 		extension TEXT,
-		active BIT DEFAULT 1
+		icon TEXT,
+		active INTEGER DEFAULT 1,
+		open_count INTEGER DEFAULT 0,
+		last_opened TIMESTAMP
 	)
 `);
+
+try { db.exec(`ALTER TABLE apps ADD COLUMN icon TEXT`); } catch (e) {}
+
+try
+{
+	db.exec(`ALTER TABLE apps ADD COLUMN open_count INTEGER DEFAULT 0`);
+	db.exec(`ALTER TABLE apps ADD COLUMN last_opened TIMESTAMP`);
+} catch (e) { }
 
 console.log('База данных инициализирована:', dbPath);
 

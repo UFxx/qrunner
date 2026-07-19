@@ -12,11 +12,18 @@ else
 {
 	app.on('second-instance', () =>
 		{
-			if (win)
+			if (win && !win.isDestroyed())
 			{
-				if (win.isMinimized()) win.restore();
-				win.show();
-				win.focus();
+				if (win.isMinimized())
+					win.restore();
+
+				if (win.isVisible())
+					win.focus();
+				else
+				{
+					win.show();
+					win.focus();
+				}
 			}
 		}
 	);
@@ -56,12 +63,19 @@ function createWindow()
 		win.loadFile(path.join(__dirname, '../renderer/index.html'));
 
 	win.on('blur', () => win.hide());
+
+	win.on('close', (e) =>
+	{
+		e.preventDefault();
+		win.hide();
+	});
 }
 
-function createTray() {
-	const iconPath = path.join(__dirname, 'icons', 'tray-icon.png');
-
+function createTray()
+{
 	if (tray && !tray.isDestroyed()) return;
+
+	const iconPath = path.join(__dirname, 'icons', 'tray-icon.png');
 
 	tray = new Tray(iconPath);
 
@@ -86,11 +100,18 @@ function createTray() {
 	tray.setToolTip('QRunner');
 
 	tray.on('click', () =>
+	{
+		if (win && !win.isDestroyed())
 		{
-			win.show();
-			win.focus();
+			if (win.isVisible())
+				win.hide();
+			else
+				{
+				win.show();
+				win.focus();
+			}
 		}
-	);
+	});
 }
 
 function registerGlobalShortcut()
@@ -99,11 +120,18 @@ function registerGlobalShortcut()
 	globalShortcut.unregisterAll();
 
 	const registered = globalShortcut.register(shortcut, () =>
+	{
+		if (win && !win.isDestroyed())
 		{
-			win.show();
-			win.focus();
-		}
-	);
+			if (win.isVisible())
+				win.hide();
+			else
+				{
+				win.show();
+				win.focus();
+			}
+		} else { createWindow(); }
+	});
 
 	if (!registered)
 		console.warn(`Не удалось зарегистрировать хоткей: ${shortcut}`);
@@ -135,10 +163,14 @@ app.on('will-quit', () =>
 	{
 		globalShortcut.unregisterAll();
 
-		if (tray && !tray.isDestroyed())
+		try
 		{
-			tray.destroy();
-			tray = null;
+			if (tray && !tray.isDestroyed())
+				{
+					tray.destroy();
+					tray = null;
+				}
 		}
+		catch (e) { tray = null; }
 	}
 );

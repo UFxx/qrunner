@@ -1,4 +1,4 @@
-const { ipcMain } = require('electron');
+const { ipcMain, app } = require('electron');
 const db          = require('../database.js');
 const fs          = require('fs');
 const fsp         = fs.promises;
@@ -111,7 +111,7 @@ async function scanDirectory(dirPath, extensions, results = [], depth = 0, maxDe
 				subdirs.push([fullPath, depth + 1]);
 			else if (entry.isFile())
 			{
-				const ext = entry.name.split('.').pop()?.toLowerCase();
+				const ext = path.extname(entry.name).slice(1).toLowerCase();
 
 				if (ext && extensions.includes(ext) && !SKIP_EXTENSIONS.has(ext))
 					results.push(fullPath);
@@ -132,18 +132,17 @@ async function scanDirectory(dirPath, extensions, results = [], depth = 0, maxDe
 
 function saveToDatabase(filePaths) {
 	const insertStmt = db.prepare(`
-		INSERT OR IGNORE INTO apps (name, path, extension)
-		VALUES (?, ?, ?)
+		INSERT OR IGNORE INTO apps (name, path, extension, active)
+		VALUES (?, ?, ?, 1)
 	`);
 
 	const transaction = db.transaction(() => {
 		let count = 0;
 
-		for (const filePath of filePaths)
-		{
+		for (const filePath of filePaths) {
 			const fileName = filePath.split(/[\\/]/).pop();
-			const ext      = fileName.split('.').pop()?.toLowerCase() || '';
-			const name     = fileName.substring(0, fileName.lastIndexOf('.')) || fileName;
+			const ext = fileName.split('.').pop()?.toLowerCase() || '';
+			const name = fileName.substring(0, fileName.lastIndexOf('.')) || fileName;
 
 			try {
 				insertStmt.run(name, filePath, ext);
@@ -158,8 +157,61 @@ function saveToDatabase(filePaths) {
 		return count;
 	});
 
-	const savedCount = transaction();
-	return savedCount;
+	return transaction();
+}
+
+async function fetchAndSaveIcons(filePaths) {
+	const updateStmt = db.prepare('UPDATE apps SET icon = ? WHERE path = ?');
+	const selectStmt = db.prepare('SELECT path, icon FROM apps WHERE path = ?');
+	
+	let updated = 0;
+	let skipped = 0;
+
+	for (const filePath of filePaths) {
+		// Проверяем, есть ли уже иконка
+		const existing = selectStmt.get(filePath);
+		if (existing && existing.icon)
+		{
+			skipped++;
+			continue;
+		}
+
+		try {
+			const icon = await app.getFileIcon(filePath, { size: 'normal' });
+			const iconData = icon.toDataURL();
+			updateStmt.run(iconData, filePath);
+			updated++;
+
+			if (updated % 100 === 0)
+				console.log(`📊 Получено иконок: ${updated}`);
+		}
+		catch (error) { console.error('Не удалось найти иконку', err); }
+	}
+
+	console.log(`✅ Иконки обновлены: ${updated}, пропущено: ${skipped}`);
+	return updated;
+}
+
+function cleanupDatabase(existingFiles) {
+	const existingPaths = new Set(existingFiles);
+	const allApps = db.prepare('SELECT path FROM apps').all();
+
+	const deleteStmt = db.prepare('DELETE FROM apps WHERE path = ?');
+	const transaction = db.transaction(() =>
+	{
+		let deleted = 0;
+		for (const app of allApps)
+		{
+			if (!existingPaths.has(app.path))
+			{
+				deleteStmt.run(app.path);
+				deleted++;
+			}
+		}
+		return deleted;
+	});
+
+	return transaction();
 }
 
 // Indexed func
@@ -169,34 +221,54 @@ async function performIndex(extensions) {
 	if (drives.length === 0)
 		throw new Error('Не найдено доступных дисков для сканирования');
 
-	const allFiles = [];
-	let totalScanned = 0;
+	const scanPromises = drives.map(drive => 
+		scanDirectory(drive, extensions, [], 0, 4)
+			.catch(error => {
+				console.warn(`⚠️ Ошибка сканирования ${drive}:`, error.message);
+				return [];
+			})
+	);
 
-	for (const drive of drives) {
-		try {
-			const files = await scanDirectory(drive, extensions, [], 0, 4);
-			totalScanned += files.length;
-			allFiles.push(...files);
-		}
-		catch (error) {
-			console.warn(`⚠️ Ошибка сканирования ${drive}:`, error.message);
-		}
-	}
+	const resultsPerDrive = await Promise.all(scanPromises);
+	const allFiles = resultsPerDrive.flat();
+	const totalScanned = allFiles.length;
 
 	const uniqueFiles = [...new Set(allFiles)];
-	const savedCount  = saveToDatabase(uniqueFiles);
+	const savedCount = saveToDatabase(uniqueFiles);
+	
+	// Получаем иконки после сохранения в БД
+	console.log(` Начинаем получение иконок для ${uniqueFiles.length} файлов...`);
+	const iconsUpdated = await fetchAndSaveIcons(uniqueFiles);
+	
+	const deletedCount = cleanupDatabase(uniqueFiles);
 
 	return {
-		totalScanned: totalScanned,
+		totalScanned,
 		saved: savedCount,
-		drives: drives,
+		iconsUpdated,
+		deleted: deletedCount,
+		drivesCount: drives.length,
 		uniqueFiles: uniqueFiles.length
 	};
 }
 
-function index()
+async function getFileIcon(filePath)
 {
-	ipcMain.on('index', async (e, extensions) =>
+	try
+	{
+		const icon = await app.getFileIcon(filePath, { size: 'normal' });
+		return icon.toDataURL();
+	}
+	catch (error)
+	{
+		console.warn(`⚠️ Не удалось получить иконку для ${filePath}:`, error.message);
+		return null;
+	}
+}
+
+function indexer()
+{
+	ipcMain.on('indexer', async (e, extensions) =>
 	{
 		try {
 			const exts = extensions || (
@@ -209,7 +281,7 @@ function index()
 			const result    = await performIndex(exts);
 			const duration  = Date.now() - startTime;
 
-			e.reply('index-response',
+			e.reply('indexer-response',
 				{
 					success: true,
 					...result,
@@ -221,7 +293,7 @@ function index()
 		catch (error) {
 			console.error('❌ Ошибка индексации:', error);
 
-			e.reply('index-response',
+			e.reply('indexer-response',
 				{
 					success: false,
 					error: error.message,
@@ -232,4 +304,4 @@ function index()
 	});
 }
 
-module.exports = index;
+module.exports = indexer;

@@ -18,27 +18,35 @@ function searchHandler()
 			return;
 		}
 
-		try {
+		try
+		{
 			const searchQuery = `%${value}%`;
+			const startsWithQuery = `${value}%`;
 
 			const results = db.prepare(`
-				SELECT id, name, path, extension, active
+				SELECT id, name, path, extension, icon, active
 				FROM apps
-				WHERE name LIKE ?
-				AND active = 1
+				WHERE active = 1
+				AND (
+					(name || '.' || extension) LIKE ?
+					OR path LIKE ?
+				)
 				ORDER BY
 				CASE
 					WHEN name LIKE ? THEN 1
-					WHEN name LIKE ? THEN 2
-					ELSE 3
+					WHEN (name || '.' || extension) LIKE ? THEN 2
+					WHEN path LIKE ? THEN 3
+					ELSE 4
 				END,
 				name
-				LIMIT 10
+				LIMIT 50
 			`)
 			.all(
 				searchQuery,
-				`${value}%`,
-				`% ${value}%`
+				searchQuery,
+				startsWithQuery,
+				searchQuery,
+				searchQuery
 			);
 
 			e.reply('input-response',
@@ -50,7 +58,8 @@ function searchHandler()
 				}
 			);
 		}
-		catch (error) {
+		catch (error)
+		{
 			console.error('Ошибка поиска:', error);
 			e.reply('input-response',
 				{

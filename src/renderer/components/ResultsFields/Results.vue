@@ -19,6 +19,7 @@
 	);
 
 	const currentSelectedItemIndex = ref(0);
+	const resultsRef             = ref(null);
 
 	const emit = defineEmits(['selectItem']);
 
@@ -34,14 +35,26 @@
 			selectItem(currentSelectedItemIndex.value, currentSelectedItemIndex.value - 1);
 		else
 			selectItem(currentSelectedItemIndex.value);
+
+		scrollItemIntoView(resultsRef.value.children[currentSelectedItemIndex.value], 'end');
 	}
+
 	const selectPrevItem = () =>
 	{
 		if (currentSelectedItemIndex.value <= 0) return;
 
 		currentSelectedItemIndex.value -= 1;
 		selectItem(currentSelectedItemIndex.value, currentSelectedItemIndex.value + 1);
+
+		scrollItemIntoView(resultsRef.value.children[currentSelectedItemIndex.value], 'start');
 	}
+
+	const scrollItemIntoView = (item, blockOption) => item.scrollIntoView(
+		{
+			behavior : 'smooth',
+			block    : blockOption
+		}
+	);
 
 	const launchApp = () =>
 	{
@@ -65,7 +78,10 @@
 </script>
 
 <template>
-	<div class="results">
+	<div
+		class="results"
+		ref="resultsRef"
+	>
 		<template v-if="type === 'app'">
 			<App
 				v-for="item in items"

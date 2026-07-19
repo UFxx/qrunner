@@ -1,11 +1,21 @@
 <script setup>
-	import { onMounted, reactive, watch, ref } from 'vue';
+	import {
+		onUnmounted,
+		onMounted,
+		reactive,
+		watch,
+		ref
+	} from 'vue';
+
 	import Input from './components/Input.vue';
 	import baseStyles from './assets/baseStyles.json';
 	import InputSettings from './components/InputSettings/InputSettingsWrapper.vue';
 
+	import { useInputStyles } from './composables/useInputStyles.js';
+
 	let inputSettings      = reactive({})
 	const isSettingsOpened = ref(false);
+	const inputStyles      = useInputStyles(inputSettings);
 
 	const setInputSettings = () =>
 	{
@@ -22,14 +32,10 @@
 		}
 	}
 
-	const toggleSettings   = (value) => isSettingsOpened.value = value;
-	const startIndex       = ()       => window.electron.ipcRenderer.send('index');
-
-	const setupIpcListener = () => window.electron.ipcRenderer.on('index-response', (data) =>
-	{
-		localStorage.setItem('lastIndexedTime', data.newTimestamp)
-	});
-
+	const toggleSettings       = (value) => isSettingsOpened.value = value;
+	const handleIndexResponse  = (data) => localStorage.setItem('lastIndexedTime', data.newTimestamp);
+	const startIndex           = () => window.electron.ipcRenderer.send('indexer');
+	const setupIpcListener     = () => window.electron.ipcRenderer.on('indexer-response', handleIndexResponse);
 	const checkLastIndexedTime = () =>
 	{
 		const currentTimestamp = Date.now();
@@ -56,11 +62,20 @@
 		setInputSettings();
 		checkLastIndexedTime();
 		window.addEventListener('keydown', closeWindow);
+		useInputStyles();
+	});
+
+	onUnmounted(() => {
+		window.electron.ipcRenderer.removeListener('indexer-response', handleIndexResponse);
+		window.removeEventListener('keydown', closeWindow);
 	});
 </script>
 
 <template>
-	<div class="input-wr">
+	<div
+		class="input-wr"
+		:style="inputStyles"
+	>
 		<Input
 			:inputSettings
 			@toggleSettings="toggleSettings"
@@ -70,6 +85,7 @@
 		<InputSettings
 			v-model="inputSettings"
 			@toggleSettings="toggleSettings"
+			@input="inputHandler"
 		/>
 	</div>
 </template>
@@ -81,14 +97,16 @@
 
 		&::after
 		{
-			top: 50%;
-			left: 30px;
-			width: 30px;
-			height: 30px;
+			width: var(--input-icon-size);
+			height: var(--input-icon-size);
 			content: '';
-			position: absolute;
 			transform: translateY(-50%);
 			background: url('./assets/images/magnifier.svg');
+			background-size: cover;
+
+			top: 50%;
+			left: 30px;
+			position: absolute;
 		}
 	}
 </style>
