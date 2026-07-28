@@ -1,5 +1,5 @@
 <script setup>
-	import { ref, onMounted } from 'vue';
+	import { ref, computed, onMounted } from 'vue';
 	import Results from './ResultsFields/Results.vue';
 
 	const props = defineProps(
@@ -15,13 +15,29 @@
 
 	const emit = defineEmits(['toggleSettings']);
 
+	const DEFAULT_TYPE = 'app';
+
 	const input         = ref();
+	const type          = ref(DEFAULT_TYPE);
 	const searchResults = ref([]);
+	const calculation   = ref(null);
 
 	const handleInput = (event) =>
 	{
 		const value = event.target.value;
-		window.electron.ipcRenderer.send('input', value);
+
+		if (type.value === DEFAULT_TYPE)
+			window.electron.ipcRenderer.send('input', value);
+
+		if (value.startsWith('='))
+		{
+			calculation.value = value;
+			type.value = 'calculation';
+		}
+		else if (value.startsWith('q:'))
+			type.value = 'tools';
+		else
+			type.value = DEFAULT_TYPE;
 	}
 
 	const setupIpcListener = () =>
@@ -55,11 +71,13 @@
 
 	const selectItem = (idx, prevIdx = null) =>
 	{
+		if (type.value !== DEFAULT_TYPE) return;
+
 		searchResults.value[idx].isSelected = true;
 
 		if (prevIdx !== null)
 			searchResults.value[prevIdx].isSelected = false;
-	}
+	};
 
 	onMounted(() =>
 	{
@@ -78,9 +96,11 @@
 	>
 
 	<Results
-		v-if="searchResults.length"
+		v-if="searchResults.length || calculation"
 		:items="searchResults"
 		:styles="inputStyles"
+		:calculation
+		:type
 		@selectItem="selectItem"
 	/>
 </template>
